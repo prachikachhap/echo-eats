@@ -83,6 +83,76 @@ def put_users():
 
     connection.commit()
     return {"message": "User updated successfully"}
+
+@app.route("/menu" , methods= ['GET'])
+def get_menu():
+    cursor.execute("SELECT * FROM Menu")
+    menu = cursor.fetchall()
+    return {"menu": menu}
+
+@app.route("/menu" , methods= ['POST'])
+def add_menu():
+    data= request.get_json()
+    cursor.execute(
+        """
+        INSERT INTO Menu (Itemname , Price , Category )
+        VALUES(%s,%s,%s)
+
+       """,
+       (data["itemname"],
+        data["price"],
+        data["category"]
+        )
+    )
+    connection.commit()
+    return {"message": "Menu item added successfully!"}
+
+@app.route('/menu', methods=['DELETE'])
+def delete_menu():
+
+    data = request.get_json()
+
+    cursor.execute(
+        """
+        DELETE FROM Menu
+        WHERE ItemID = %s
+        """,
+        (data["id"],)
+    )
+
+    if cursor.rowcount == 0:
+        return {"error": "Menu item not found"}, 404
+
+    connection.commit()
+
+    return {"message": "Menu item deleted successfully"}
+
+@app.route('/menu', methods=['PUT'])
+def put_menu():
+
+    data = request.get_json()
+
+    cursor.execute(
+        """
+        UPDATE Menu
+        SET ItemName=%s, Price=%s, Category=%s
+        WHERE ItemID=%s
+        """,
+        (
+            data["itemname"],
+            data["price"],
+            data["category"],
+            data["id"]
+        )
+    )
+
+    if cursor.rowcount == 0:
+        return {"error": "Menu item not found"}, 404
+
+    connection.commit()
+
+    return {"message": "Menu item updated successfully"}
+
 app.run(debug =True)
 
               
