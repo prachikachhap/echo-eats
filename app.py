@@ -45,19 +45,44 @@ def add_users():
     connection.commit()
 
     return {"message": "User added successfully!"}
-@app.route('/users' , methods= ['DELETE'])
+@app.route('/users', methods=['DELETE'])
 def delete_users():
-    data= request.get_json()
-    if data["name"] not in users:
-        return{ "error": "user not found"}, 404
-    users.remove(data["name"])
-    return{ "messgae": "user removed" , "users": users}, 200
+
+    data = request.get_json()
+
+    cursor.execute(
+        """
+        DELETE FROM Users
+        WHERE UserID = %s
+        """,
+        (data["id"],)
+    )
+    if cursor.rowcount == 0:
+      return {"error": "User not found"}, 404
+
+    connection.commit()
+
+    return {"message": "User deleted successfully"}
 @app.route('/users' , methods=['PUT'])
 def put_users():
     data= request.get_json()
-    index = users.index(data["old_name"])
-    users[index] = data["new_name"]
-    return{ "message": "user replaced" , "users" : users}
+    cursor.execute(
+    """
+    UPDATE Users
+    SET Name=%s, City=%s, Phone=%s
+    WHERE UserID=%s
+    """,
+    (
+        data["name"],
+        data["city"],
+        data["phone"],
+        data["id"]
+    )
+)
+
+
+    connection.commit()
+    return {"message": "User updated successfully"}
 app.run(debug =True)
 
               
